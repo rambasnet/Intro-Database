@@ -1,2 +1,2 @@
-# Intro-Database
+# Intro To Database
 Introduction to Database Course Materials
