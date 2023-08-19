@@ -64,7 +64,7 @@ def insert_many_rows(db_file: str, insert_rows_sql: str, rows: list[tuple]):
   Args:
     db_file (str): database file path
     insert_data_sql (str): an INSERT INTO statement
-    rows (list[tuple]): list of tuples as rows to be inserted
+    rows (list[tuple]): list of tuples as rows to be inserted for parameterized query
   """
   conn = create_connection(db_file)
   with conn:
@@ -77,19 +77,20 @@ def insert_many_rows(db_file: str, insert_rows_sql: str, rows: list[tuple]):
   # close most be called explictly
   close_connection(conn)
 
-def select_one_row(db_file: str, select_row_sql: str):
+def select_one_row(db_file: str, select_row_sql: str, where: tuple):
   """Select one row from a table from the select_data_sql statement
   Args:
     db_file (str): database file path
     select_data_sql (str): an SELECT statement
+    where (tuple): where clause as tuple for ? placeholder
   Return:
-    row (tuple): row as tuple
+    row (tuple) | None : row as tuple or None
   """
   conn = create_connection(db_file)
   with conn:
     try:
       cursor = conn.cursor()
-      cursor.execute(select_row_sql)
+      cursor.execute(select_row_sql, where)
       row = cursor.fetchone()
       return row
     except Error as e:
@@ -97,19 +98,20 @@ def select_one_row(db_file: str, select_row_sql: str):
   # close most be called explictly
   close_connection(conn)
 
-def select_all_rows(db_file: str, select_rows_sql: str):
+def select_all_rows(db_file: str, select_rows_sql: str, where: tuple):
   """Select all rows from a table from the select_data_sql statement
   Args:
     db_file (str): database file path
     select_data_sql (str): an SELECT statement
+    where (tuple): where clause as tuple for ? placeholder
   Return:
-    rows (list[tuple]): list of tuples as rows
+    rows (list[tuple]) | None: list of tuples as rows or None
   """
   conn = create_connection(db_file)
   with conn:
     try:
       cursor = conn.cursor()
-      cursor.execute(select_rows_sql)
+      cursor.execute(select_rows_sql, where)
       rows = cursor.fetchall()
       return rows
     except Error as e:
@@ -117,3 +119,44 @@ def select_all_rows(db_file: str, select_rows_sql: str):
   # close most be called explictly
   close_connection(conn)
 
+def update(db_file: str, update_sql: str, where: tuple):
+  """Update a table from the update_sql statement
+  Args:
+    db_file (str): database file path
+    update_sql (str): an UPDATE statement
+    where (tuple): where clause as tuple for ? placeholder
+  Return:
+    rows_affected (int): number of rows affected
+  """
+  conn = create_connection(db_file)
+  with conn:
+    try:
+      cursor = conn.cursor()
+      cursor.execute(update_sql, where)
+    except Error as e:
+      print(e)
+    # Successful, conn.commit() is called automatically afterwards
+  # close most be called explictly
+  close_connection(conn)
+  return cursor.rowcount
+
+def delete(db_file: str, delete_sql: str, where: tuple):
+  """Delete a table from the delete_sql statement
+  Args:
+    db_file (str): database file path
+    delete_sql (str): a DELETE statement
+    where (tuple): where clause as tuple for ? placeholder
+  Return:
+    rows_affected (int): number of rows affected
+  """
+  conn = create_connection(db_file)
+  with conn:
+    try:
+      cursor = conn.cursor()
+      cursor.execute(delete_sql, where)
+    except Error as e:
+      print(e)
+    # Successful, conn.commit() is called automatically afterwards
+  # close most be called explictly
+  close_connection(conn)
+  return cursor.rowcount
