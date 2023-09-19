@@ -1,3 +1,17 @@
+"""Sqlite Database wrapper.
+
+This module provides a wrapper for sqlite3 database operations.
+
+Example:
+    import db
+
+    # create a database connection
+    conn = db.create_connection("sqlite.db")
+    db.close_connection(conn)
+
+"""
+
+import sys
 import sqlite3
 from sqlite3 import Error
 from typing import Any
@@ -19,7 +33,7 @@ def create_connection(db_file: str) -> sqlite3.Connection:
         conn = sqlite3.connect(db_file)
         return conn
     except Error as e:
-        print(e)
+        print(e, file=sys.stderr)
         raise e
 
 
@@ -44,7 +58,7 @@ def create_table(db_file: str, create_table_sql: str) -> None:
             cursor = conn.cursor()
             cursor.execute(create_table_sql)
         except Error as e:
-            print(e)
+            print(e, file=sys.stderr)
         # Successful, conn.commit() is called automatically afterwards
     # close most be called explictly
     close_connection(conn)
@@ -63,7 +77,7 @@ def insert_one_row(db_file: str, insert_row_sql: str, row: tuple[Any]) -> None:
             cursor = conn.cursor()
             cursor.execute(insert_row_sql, row)
         except Error as e:
-            print(e)
+            print(e, file=sys.stderr)
         # Successful, conn.commit() is called automatically afterwards
     # close most be called explictly
     close_connection(conn)
@@ -82,7 +96,7 @@ def insert_many_rows(db_file: str, insert_rows_sql: str, rows: list[tuple[str]])
             cursor = conn.cursor()
             cursor.executemany(insert_rows_sql, rows)
         except Error as e:
-            print(e)
+            print(e, file=sys.stderr)
         # Successful, conn.commit() is called automatically afterwards
     # close most be called explictly
     close_connection(conn)
@@ -110,7 +124,7 @@ def select_one_row(db_file: str, select_row_sql: str, where: tuple[str]) -> Any:
             row = cursor.fetchone()
             return row
         except Error as e:
-            print(e)
+            print(e, file=sys.stderr)
             raise e
         finally:
             # close most be called explictly
@@ -134,9 +148,11 @@ def select_all_rows(db_file: str, select_rows_sql: str, where: tuple[Any]) -> An
             rows = cursor.fetchall()
             return rows
         except Error as e:
-            print(e)
-    # close most be called explictly
-    close_connection(conn)
+            print(e, file=sys.stderr)
+            raise e
+        finally:
+            # close most be called explictly
+            close_connection(conn)
 
 
 def update(db_file: str, update_sql: str, where: tuple[Any]) -> int:
@@ -153,14 +169,14 @@ def update(db_file: str, update_sql: str, where: tuple[Any]) -> int:
         try:
             cursor = conn.cursor()
             cursor.execute(update_sql, where)
+            return cursor.rowcount
         except Error as e:
             print(e)
             raise e
-        # Successful, conn.commit() is called automatically afterwards
-    # close most be called explictly
-    close_connection(conn)
-    return cursor.rowcount
-
+        finally:
+            # close most be called explictly
+            close_connection(conn)
+    
 
 def delete(db_file: str, delete_sql: str, where: tuple[Any]) -> int:
     """Delete a table from the delete_sql statement
@@ -176,9 +192,12 @@ def delete(db_file: str, delete_sql: str, where: tuple[Any]) -> int:
         try:
             cursor = conn.cursor()
             cursor.execute(delete_sql, where)
+            return cursor.rowcount
         except Error as e:
-            print(e)
-        # Successful, conn.commit() is called automatically afterwards
-    # close most be called explictly
-    close_connection(conn)
-    return cursor.rowcount
+            print(e, file=sys.stderr)
+            raise e
+        finally:
+            # close most be called explictly
+            close_connection(conn)
+
+    
