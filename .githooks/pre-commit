@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+LC_ALL=C
+
+#current_branch=$(git symbolic-ref --short head)
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+echo "Running pre-commit hook on branch: $current_branch"
+if [[ "$current_branch" == "main" ]]; then
+    echo "Commit on main is now allowed. Please use a feature branch."
+    exit 1
+fi
+
+valid_branch_regex="^(lab|project|assignment|homework|issue|dev|feature|bugfix|improvement|library|prerelease|release|hotfix)\/[a-z0-9._-]+$"
+
+message="ERROR on Commit. Branch name must adhere to this contract: $valid_branch_regex. Rename your branch to a valid name and try again."
+
+if [[ ! $current_branch =~ $valid_branch_regex ]]
+then
+    echo "$message"
+    echo "git branch -m <branch/sub-branch>"
+    exit 1
+fi
+
+exit 0

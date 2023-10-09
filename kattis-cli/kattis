@@ -1,0 +1,3 @@
+#!/bin/sh
+python "${KATTIS_CLI}/submit.py" "$@"
+#python "submit.py" "$@"

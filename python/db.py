@@ -14,7 +14,7 @@ Example:
 
 import sqlite3
 from sqlite3 import Error
-from typing import Any
+from typing import Any, Optional, Tuple, List
 
 
 def create_connection(db_file: str) -> sqlite3.Connection:
@@ -72,7 +72,8 @@ def create_table(db_file: str, create_table_sql: str) -> None:
         close_connection(conn)
 
 
-def insert_one_row(db_file: str, insert_row_sql: str, row: tuple[Any]) -> int:
+def insert_one_row(db_file: str, insert_row_sql: str,
+                   row: Tuple) -> Optional[int]:
     """Insert data into a table from the insert_data_sql statement
     Args:
       db_file (str): database file path
@@ -86,6 +87,7 @@ def insert_one_row(db_file: str, insert_row_sql: str, row: tuple[Any]) -> int:
         row_id (int): row id of the last inserted row
     """
     conn = create_connection(db_file)
+
     try:
         cursor = conn.cursor()
         cursor.execute(insert_row_sql, row)
@@ -99,12 +101,13 @@ def insert_one_row(db_file: str, insert_row_sql: str, row: tuple[Any]) -> int:
         close_connection(conn)
 
 
-def insert_many_rows(db_file: str, insert_rows_sql: str, rows: list[tuple[str]]) -> int:
+def insert_many_rows(db_file: str, insert_rows_sql: str,
+                     rows: List[Any]) -> Optional[int]:
     """Insert data into a table from the insert_data_sql statement
     Args:
       db_file (str): database file path
       insert_data_sql (str): an INSERT INTO statement
-      rows (list[tuple]): list of tuples as rows to be inserted for parameterized query
+      rows (list[tuple]): list of tuples as rows to be inserted
 
     Raises:
         err: sqlite3.Error as an exception.
@@ -126,7 +129,8 @@ def insert_many_rows(db_file: str, insert_rows_sql: str, rows: list[tuple[str]])
         close_connection(conn)
 
 
-def select_one_row(db_file: str, select_row_sql: str, where: tuple[str]) -> Any:
+def select_one_row(db_file: str, select_row_sql: str,
+                   where: Tuple[Any]) -> Any:
     """API to select one row from a table from the select_data_sql statement.
 
     Args:
@@ -150,7 +154,8 @@ def select_one_row(db_file: str, select_row_sql: str, where: tuple[str]) -> Any:
             raise err
 
 
-def select_many_rows(db_file: str, select_rows_sql: str, where: tuple[Any]) -> Any:
+def select_many_rows(db_file: str, select_rows_sql: str,
+                     where: Tuple) -> Any:
     """Select all rows from a table from the select_data_sql statement
     Args:
       db_file (str): database file path
@@ -173,7 +178,7 @@ def select_many_rows(db_file: str, select_rows_sql: str, where: tuple[Any]) -> A
             raise err
 
 
-def update(db_file: str, update_sql: str, where: tuple[Any]) -> int:
+def update(db_file: str, update_sql: str, where: Tuple) -> Optional[int]:
     """Update a table from the update_sql statement
     Args:
       db_file (str): database file path
@@ -196,7 +201,7 @@ def update(db_file: str, update_sql: str, where: tuple[Any]) -> int:
             raise err
 
 
-def delete(db_file: str, delete_sql: str, where: tuple[Any]) -> int:
+def delete(db_file: str, delete_sql: str, where: Tuple[Any]) -> int:
     """Delete a table from the delete_sql statement
     Args:
       db_file (str): database file path
