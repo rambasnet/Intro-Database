@@ -82,7 +82,7 @@ class TestDB(unittest.TestCase):
         data_in = (1, "John", 20)
         db.insert_one_row(self.db_file, sql, data_in)
         # insert again
-        self.assertRaises(db.sqlite3.IntegrityError,
+        self.assertRaises(sqlite3.IntegrityError,
                           db.insert_one_row, self.db_file, sql, data_in)
 
     def test_insert_many_rows(self) -> None:
@@ -117,7 +117,7 @@ class TestDB(unittest.TestCase):
         data_in = [(1, "John", 20), (2, "Jane", 25)]
         db.insert_many_rows(self.db_file, sql, data_in)
         # insert again
-        self.assertRaises(db.sqlite3.IntegrityError,
+        self.assertRaises(sqlite3.IntegrityError,
                           db.insert_many_rows, self.db_file, sql, data_in)
 
     def test_select_one_row(self) -> None:

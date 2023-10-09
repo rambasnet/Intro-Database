@@ -73,7 +73,7 @@ def create_table(db_file: str, create_table_sql: str) -> None:
 
 
 def insert_one_row(db_file: str, insert_row_sql: str,
-                   row: Tuple) -> Optional[int]:
+                   row: Tuple[Any, ...]) -> Optional[int]:
     """Insert data into a table from the insert_data_sql statement
     Args:
       db_file (str): database file path
@@ -130,7 +130,7 @@ def insert_many_rows(db_file: str, insert_rows_sql: str,
 
 
 def select_one_row(db_file: str, select_row_sql: str,
-                   where: Tuple[Any]) -> Any:
+                   where: Tuple[Any, ...]) -> Any:
     """API to select one row from a table from the select_data_sql statement.
 
     Args:
@@ -155,7 +155,7 @@ def select_one_row(db_file: str, select_row_sql: str,
 
 
 def select_many_rows(db_file: str, select_rows_sql: str,
-                     where: Tuple) -> Any:
+                     where: Tuple[Any, ...]) -> Any:
     """Select all rows from a table from the select_data_sql statement
     Args:
       db_file (str): database file path
@@ -178,7 +178,8 @@ def select_many_rows(db_file: str, select_rows_sql: str,
             raise err
 
 
-def update(db_file: str, update_sql: str, where: Tuple) -> Optional[int]:
+def update(db_file: str, update_sql: str,
+           where: Tuple[Any, ...]) -> Optional[int]:
     """Update a table from the update_sql statement
     Args:
       db_file (str): database file path
