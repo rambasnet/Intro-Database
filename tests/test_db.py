@@ -50,6 +50,22 @@ class TestDB(unittest.TestCase):
         db.create_table(self.db_file, sql)
         self.assertTrue(os.path.exists(self.db_file))
 
+    def test_create_table1(self) -> None:
+        """Test create_table function.
+        """
+        sql = """CREATE TABLE IF NOT EXISTS test (
+            id integer PRIMARY KEY,
+            f_name text NOT NULL,
+            l_name text NOT NULL,
+            age integer
+        );"""
+        db.create_table(self.db_file, sql)
+        sql_check = """SELECT name FROM sqlite_master \
+                          WHERE type = 'table' \
+                            AND name = 'test';"""
+        row = db.select_one_row(self.db_file, sql_check, ())
+        self.assertEqual("test", row[0])
+
     def test_insert_one_row(self) -> None:
         """Test insert_one_row function.
         """
