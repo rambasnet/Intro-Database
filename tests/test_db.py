@@ -225,9 +225,11 @@ class TestDB(unittest.TestCase):
         db.execute_non_query(self.db_file, sql)
         conn = db.create_connection(self.db_file)
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM sqlite_master WHERE type = 'index'\
+        cursor.execute("SELECT * FROM sqlite_master \
+                       WHERE type = 'index' \
                        and name='idx_test_name';")
-        # should return a row with 5 columns: type, name, tbl_name, rootpage, sql
+        # should return a row with 5 columns:
+        # type, name, tbl_name, rootpage, sql
         data_out = cursor.fetchone()
         self.assertEqual(5, len(data_out))
         db.close_connection(conn)
