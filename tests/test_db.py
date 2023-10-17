@@ -166,7 +166,7 @@ class TestDB(unittest.TestCase):
         db.insert_many_rows(self.db_file, sql, data_in_list)
         sql = """UPDATE test SET name = ? WHERE id = ?;"""
         data_in_tuple = ("John Doe", 1)
-        db.update(self.db_file, sql, data_in_tuple)
+        db.update_record(self.db_file, sql, data_in_tuple)
         sql = """SELECT * FROM test WHERE id = ?;"""
         data_out = db.select_one_row(self.db_file, sql, (1,))
         self.assertEqual(("John Doe", 20), data_out[1:])
@@ -185,7 +185,7 @@ class TestDB(unittest.TestCase):
         db.insert_many_rows(self.db_file, sql, data_in_list)
         sql = """UPDATE test SET name = ? WHERE age <= ?;"""
         data_in: Tuple[str, int] = ("John Doe", 25)
-        db.update(self.db_file, sql, data_in)
+        db.update_record(self.db_file, sql, data_in)
         sql = """SELECT * FROM test;"""
         data_out = db.select_many_rows(self.db_file, sql, ())
         self.assertEqual([("John Doe", 20), ("John Doe", 25)],
@@ -204,7 +204,30 @@ class TestDB(unittest.TestCase):
         data_in = [("John", 20), ("Jane", 25)]
         db.insert_many_rows(self.db_file, sql, data_in)
         sql = """DELETE FROM test WHERE id = ?;"""
-        db.delete(self.db_file, sql, (1,))
+        db.delete_record(self.db_file, sql, (1,))
         sql = """SELECT * FROM test;"""
         data_out = db.select_many_rows(self.db_file, sql, ())
         self.assertEqual([("Jane", 25)], [row[1:] for row in data_out])
+
+    def test_create_index(self) -> None:
+        """Test execute_non_query function.
+        """
+        sql = """CREATE TABLE IF NOT EXISTS test (
+            id integer PRIMARY KEY,
+            name text NOT NULL,
+            age integer
+        );
+        """
+        db.create_table(self.db_file, sql)
+        sql = """
+            CREATE INDEX IF NOT EXISTS idx_test_name ON test (name);
+            """
+        db.execute_non_query(self.db_file, sql)
+        conn = db.create_connection(self.db_file)
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM sqlite_master WHERE type = 'index'\
+                       and name='idx_test_name';")
+        # should return a row with 5 columns: type, name, tbl_name, rootpage, sql
+        data_out = cursor.fetchone()
+        self.assertEqual(5, len(data_out))
+        db.close_connection(conn)

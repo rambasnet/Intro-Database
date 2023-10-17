@@ -178,8 +178,8 @@ def select_many_rows(db_file: str, select_rows_sql: str,
             raise err
 
 
-def update(db_file: str, update_sql: str,
-           where: Tuple[Any, ...]) -> Optional[int]:
+def update_record(db_file: str, update_sql: str,
+                  where: Tuple[Any, ...]) -> Optional[int]:
     """Update a table from the update_sql statement
     Args:
       db_file (str): database file path
@@ -202,8 +202,8 @@ def update(db_file: str, update_sql: str,
             raise err
 
 
-def delete(db_file: str, delete_sql: str, where: Tuple[Any]) -> int:
-    """Delete a table from the delete_sql statement
+def delete_record(db_file: str, delete_sql: str, where: Tuple[Any]) -> int:
+    """Delete row(s) from the delete_sql statement
     Args:
       db_file (str): database file path
       delete_sql (str): a DELETE statement
@@ -221,5 +221,27 @@ def delete(db_file: str, delete_sql: str, where: Tuple[Any]) -> int:
             cursor = conn.cursor()
             cursor.execute(delete_sql, where)
             return cursor.rowcount
+        except Error as err:
+            raise err
+
+
+def execute_non_query(db_file: str, sql: str) -> None:
+    """Execute a non query statement
+    Args:
+      db_file (str): database file path
+      sql (str): a non query statement that doesn't return rows
+
+    Raises:
+        err: sqlite3.Error as an exception.
+
+    Return:
+      None
+    """
+    conn = create_connection(db_file)
+    with conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute(sql)
+            conn.commit()
         except Error as err:
             raise err
