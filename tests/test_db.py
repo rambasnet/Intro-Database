@@ -6,7 +6,7 @@ import os
 import unittest
 import sqlite3
 from typing import Tuple
-from python import db
+from demos import db
 
 
 class TestDB(unittest.TestCase):
